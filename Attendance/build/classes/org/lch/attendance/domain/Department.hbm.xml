@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2012-5-2 16:56:19 by Hibernate Tools 3.2.0.CR1 -->
+<hibernate-mapping>
+    <class name="org.lch.attendance.domain.Department" table="att_department" catalog="attendance_db">
+        <id name="deptId" type="java.lang.Integer">
+            <column name="dept_id" />
+            <generator class="identity" />
+        </id>
+        <property name="deptName" type="string">
+            <column name="dept_name" length="200" not-null="true" />
+        </property>
+        <property name="deptDesc" type="string">
+            <column name="dept_desc" length="500" />
+        </property>
+        <set name="clases" inverse="true">
+            <key>
+                <column name="pk_dept_id" />
+            </key>
+            <one-to-many class="org.lch.attendance.domain.Clas" />
+        </set>
+        <set name="weeks" inverse="true">
+            <key>
+                <column name="pk_dept_id" not-null="true" />
+            </key>
+            <one-to-many class="org.lch.attendance.domain.Week" />
+        </set>
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+
+	<global-method-security pre-post-annotations="enabled" />  
+	<!--对登录页面不进行拦截，在页面后面加*表示，该页面后面可能会带一些参数 -->
+	<http pattern="/index.*" security="none"/>
+	<!-- <http pattern="/index/**" security="none"/> -->
+	<http pattern="/js/**" security="none"/>
+	<http pattern="/css/**" security="none"/>
+	<http pattern="/images/**" security="none"/>
+	<http pattern="/common/**" security="none"/>
+		
+	<http auto-config="true" create-session="always" access-denied-page="/deny.jsp">
+		<intercept-url pattern="/WEB-INF/pages/common/*" access="IS_AUTHENTICATED_FULLY" />
+		<form-login login-page="/login.action" authentication-failure-url="/common/deny.jsp" 
+		 	always-use-default-target="true" default-target-url="/index/index.action"/>
+		<logout logout-url="/j_logout" logout-success-url="/login/logout.action" delete-cookies="JSESSIONID"/>
+		<http-basic/>
+		<session-management invalid-session-url="/WEB-INF/pages/timeout.jsp">
+			<!-- <concurrency-control max-sessions="1" error-if-maximum-exceeded="true" /> -->
+		</session-management>
+		<custom-filter ref="customFilterSecurityInterceptor" before="FILTER_SECURITY_INTERCEPTOR"/>
+	</http>
+	
+        <!-- 配置自己的拦截器 -->  
+        <beans:bean id="customFilterSecurityInterceptor" class="org.lch.attendance.service.security.impl.CustomFilterSecurityInterceptorImpl">  
+            <beans:property name="authenticationManager" ref="autheticationManager"/>  
+            <beans:property name="accessDecisionManager" ref="customAccessDecisionManager" />  
+            <beans:property name="securityMetadataSource" ref="customInvocationSecurityMetadataSource" />  
+        </beans:bean>  
+
+        <!--配置认证管理器 -->  
+        <authentication-manager alias="autheticationManager">  
+            <!-- 使用自定义UserDetailsService -->  
+            <authentication-provider user-service-ref="customUserDetailsService">  
+                <password-encoder hash="sha"/>  
+            </authentication-provider>  
+        </authentication-manager>  
+          
+        <beans:bean id="webPrivilegeEvaluator" class="org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator">   
+            <beans:constructor-arg ref="customFilterSecurityInterceptor"/>  
+        </beans:bean>  
+		<beans:bean id="loggerListener"
+			class="org.springframework.security.access.event.LoggerListener" />
+</beans:beans>

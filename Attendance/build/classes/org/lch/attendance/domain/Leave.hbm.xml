@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2012-5-6 21:48:15 by Hibernate Tools 3.2.0.CR1 -->
+<hibernate-mapping>
+    <class name="org.lch.attendance.domain.Leave" table="att_leave" catalog="attendance_db">
+        <id name="leaveId" type="java.lang.Integer">
+            <column name="leave_id" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="userSelf" class="org.lch.attendance.domain.User" fetch="select">
+            <column name="pk_user_self" not-null="true" />
+        </many-to-one>
+        <many-to-one name="userTeacher" class="org.lch.attendance.domain.User" fetch="select">
+            <column name="pk_user_teacher" not-null="true" />
+        </many-to-one>
+        <many-to-one name="userDelegate" class="org.lch.attendance.domain.User" fetch="select">
+            <column name="pk_user_delegate" not-null="true" />
+        </many-to-one>
+         <property name="leaveInfo" type="string">
+            <column name="leave_info" not-null="true"/>
+        </property>
+        <property name="leaveReason" type="string">
+            <column name="leave_reason" length="500" not-null="true" />
+        </property>
+        <property name="leaveTime" type="timestamp">
+            <column name="leave_time" length="19" not-null="true" />
+        </property>
+        <property name="leaveStatus" type="java.lang.Boolean">
+            <column name="leave_status"/>
+        </property>
+        <property name="leaveFlag" type="java.lang.Boolean">
+            <column name="leave_flag"/>
+        </property>
+    </class>
+</hibernate-mapping>

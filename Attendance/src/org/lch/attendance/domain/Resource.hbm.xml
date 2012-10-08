@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2012-5-2 16:56:19 by Hibernate Tools 3.2.0.CR1 -->
+<hibernate-mapping>
+    <class name="org.lch.attendance.domain.Resource" table="att_resource" catalog="attendance_db">
+        <id name="resourceId" type="java.lang.Integer">
+            <column name="resource_id" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="resource" class="org.lch.attendance.domain.Resource" fetch="select">
+            <column name="parent_id" />
+        </many-to-one>
+        <property name="resourceName" type="string">
+            <column name="resource_name" length="200" not-null="true" />
+        </property>
+        <property name="resourceType" type="string">
+            <column name="resource_type" length="200" not-null="true" />
+        </property>
+        <property name="resourceValue" type="string">
+            <column name="resource_value" length="300" not-null="true" />
+        </property>
+        <property name="resourceDesc" type="string">
+            <column name="resource_desc" length="300" />
+        </property>
+        <property name="resourceEnabled" type="boolean">
+            <column name="resource_enabled" not-null="true" />
+        </property>
+        <property name="resourceIsLeaf" type="boolean">
+            <column name="resource_isLeaf" not-null="true" />
+        </property>
+        <set name="resources" inverse="true">
+            <key>
+                <column name="parent_id" />
+            </key>
+            <one-to-many class="org.lch.attendance.domain.Resource" />
+        </set>
+        <set name="roles" inverse="true" table="re_resource_role" fetch="join">
+            <key>
+                <column name="resource_id" not-null="true" />
+            </key>
+            <many-to-many entity-name="org.lch.attendance.domain.Role">
+                <column name="role_id" not-null="true" />
+            </many-to-many>
+        </set>
+    </class>
+</hibernate-mapping>

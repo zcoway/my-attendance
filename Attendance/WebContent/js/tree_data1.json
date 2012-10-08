@@ -1,0 +1,38 @@
+[
+    {
+        "id": 0,
+        "text": "厦门理工学院",
+        "children": [
+            {
+                "id": 2,
+                "text": "计算机科学与技术系",
+                "state": "closed",
+                "checked": true,
+               	"children":[
+					{
+						"id": 3,
+	              		"text": "2008级",
+	              		"children":[
+	              			{
+	              				"id": 2,
+               					"text": "网络工程1班"
+	              			}
+	              		]
+					}              	
+           		]
+            },
+            {
+                "id": 2,
+                "text": "商学系",
+                "state": "closed",
+                "checked": true,
+               	"children":[
+					{
+						"id": 3,
+	              		"text": "2008级"
+					}              	
+           		]
+            }
+        ]
+    }
+]

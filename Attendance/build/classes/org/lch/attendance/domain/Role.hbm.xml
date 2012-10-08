@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2012-5-2 16:56:19 by Hibernate Tools 3.2.0.CR1 -->
+<hibernate-mapping>
+    <class name="org.lch.attendance.domain.Role" table="att_role" catalog="attendance_db">
+        <id name="roleId" type="java.lang.Integer">
+            <column name="role_id" />
+            <generator class="identity" />
+        </id>
+        <property name="roleName" type="string">
+            <column name="role_name" length="100" not-null="true" />
+        </property>
+        <property name="roleEnabled" type="boolean">
+            <column name="role_enabled" not-null="true" />
+        </property>
+        <property name="roleDesc" type="string">
+            <column name="role_desc" length="200" />
+        </property>
+        <set name="users" inverse="true" table="re_user_role">
+            <key>
+                <column name="role_id" not-null="true" />
+            </key>
+            <many-to-many entity-name="org.lch.attendance.domain.User">
+                <column name="user_id" not-null="true" />
+            </many-to-many>
+        </set>
+        <set name="resources" inverse="false" table="re_resource_role" fetch="join">
+            <key>
+                <column name="role_id" not-null="true" />
+            </key>
+            <many-to-many entity-name="org.lch.attendance.domain.Resource">
+                <column name="resource_id" not-null="true" />
+            </many-to-many>
+        </set>
+    </class>
+</hibernate-mapping>

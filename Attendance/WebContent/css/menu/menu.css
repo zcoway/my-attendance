@@ -1,0 +1,42 @@
+.nav-top-item {
+	width: 200px;
+	padding: 1px;
+	overflow: hidden;
+}
+
+.category {
+	padding-left: 10px;
+}
+
+.nav-item {
+	cursor: pointer;
+	text-align: left;
+	background: #fff;
+	font-size: 15px;
+}
+
+.nav-item a {
+	color: #06C;
+	text-decoration: none;
+}
+
+.nav-item a:hover {
+	text-decoration: underline;
+	font-size: 17px;
+}
+
+.nav-item img {
+	border: 0;
+}
+.liyashi{
+	background:url('../../images/top-item-bg.png') left center no-repeat; /* Background image for default color scheme - green */
+    padding: 5px 30px;
+    color: #1273ae;
+    font-size: 13px;
+	margin-left:0px;
+    cursor: pointer;
+    display: block;
+	text-align:left;
+    text-decoration: none;
+	font-weight:bold;
+}

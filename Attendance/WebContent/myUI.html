@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link rel="stylesheet" type="text/css" href="css/jquery-easyui/themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="css/jquery-easyui/themes/icon.css">
+	<script type="text/javascript" src="js/jquery-easyui/jquery-1.4.4.min.js"></script>
+	<script type="text/javascript" src="js/jquery-easyui/jquery.easyui.min.js"></script>
+<title>Insert title here</title>
+<script type="text/javascript">
+$(function(){
+	$('#tt2').tree({
+		checkbox: false,
+		url: 'js/tree_data2.json',
+		onClick:function(node){
+			$(this).tree('toggle', node.target);
+			//alert('you dbclick '+node.text);
+		},
+		onContextMenu: function(e, node){
+			e.preventDefault();
+			$('#tt2').tree('select', node.target);
+			$('#mm').menu('show', {
+				left: e.pageX,
+				top: e.pageY
+			});
+		}
+	});
+});
+function isLeaf(){
+	var node = $('#tt2').tree('getSelected');
+	var b = $('#tt2').tree('isLeaf', node.target);
+	alert(b)
+}
+function getSelected(){
+	var node = $('#tt2').tree('getSelected');
+	alert(node.id);
+}
+</script>
+</head>
+<body
+	style="margin: 0; padding: 0; height: 100%; overflow: hidden; background: #F2FBFF">
+	<div id="mainlayout" class="easyui-layout" fit="true">
+		<div region="north" border="false">
+			<div class="toolbar">
+				<table cellpadding="0" cellspacing="0"
+					style="width: 95%; height: 50px;" fit="true">
+					<tr>
+						<td><a href="javascript:getSelected()" class="easyui-linkbutton"
+							iconCls="icon-add" plain="true">新增</a> <a
+							href="javascript:editItem()" class="easyui-linkbutton"
+							iconCls="icon-edit" plain="true">修改</a> <a
+							href="javascript:removeItem()" class="easyui-linkbutton"
+							iconCls="icon-cancel" plain="true">删除</a> <a
+							href="javascript:isLeaf()" class="easyui-linkbutton"
+							iconCls="icon-reload" plain="true">刷新</a></td>
+						<td style="text-align: right"><a
+							href="javascript:advanceQuery()" class="easyui-linkbutton"
+							plain="true">高级查询</a></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div region="west" border="false"
+			style="border-right: 1px solid #92B7D0; width: 200px; padding: 5px;">
+			<ul id="tt2"></ul>
+		</div>
+		<div region="center" border="false">
+			
+		</div>
+		<div id="dlg" class="easyui-dialog"
+			style="width: 350px; height: 430px;" closed="true" modal="true"
+			buttons="#dlg-buttons">
+
+			<div id="dlg-buttons" style="text-align: center">
+			</div>
+		</div>
+	</div>
+</body>
+</html>

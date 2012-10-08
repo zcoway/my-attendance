@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2012-5-2 16:56:19 by Hibernate Tools 3.2.0.CR1 -->
+<hibernate-mapping>
+    <class name="org.lch.attendance.domain.Clas" table="att_clas" catalog="attendance_db">
+        <id name="clasId" type="java.lang.Integer">
+            <column name="clas_id" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="department" class="org.lch.attendance.domain.Department" fetch="join">
+            <column name="pk_dept_id" />
+        </many-to-one>
+        <property name="clasName" type="string">
+            <column name="clas_name" length="100" not-null="true" />
+        </property>
+        <property name="clasGrade" type="string">
+            <column name="clas_grade" length="20" not-null="true" />
+        </property>
+        <property name="clasDesc" type="string">
+            <column name="clas_desc" length="500" />
+        </property>
+        <set name="users" inverse="true">
+            <key>
+                <column name="pk_clas_id" />
+            </key>
+            <one-to-many class="org.lch.attendance.domain.User" />
+        </set>
+        <set name="weeks" inverse="true">
+            <key>
+                <column name="pk_clas_id" not-null="true" />
+            </key>
+            <one-to-many class="org.lch.attendance.domain.Week" />
+        </set>
+    </class>
+</hibernate-mapping>

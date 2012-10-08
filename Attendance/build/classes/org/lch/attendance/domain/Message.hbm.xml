@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2012-5-6 21:48:15 by Hibernate Tools 3.2.0.CR1 -->
+<hibernate-mapping>
+    <class name="org.lch.attendance.domain.Message" table="att_message" catalog="attendance_db">
+        <id name="messageId" type="java.lang.Integer">
+            <column name="message_id" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="userReceiver" class="org.lch.attendance.domain.User" fetch="select">
+            <column name="pk_user_receiver" not-null="true" />
+        </many-to-one>
+        <many-to-one name="userSender" class="org.lch.attendance.domain.User" fetch="select">
+            <column name="pk_user_sender" not-null="true" />
+        </many-to-one>
+        <property name="messageTime" type="timestamp">
+            <column name="message_time" length="19" not-null="true" />
+        </property>
+        <property name="messageTitle" type="string">
+            <column name="message_title" length="200" not-null="true" />
+        </property>
+        <property name="messageContent" type="string">
+            <column name="message_content" length="1000" not-null="true" />
+        </property>
+        <property name="messageStatus" type="java.lang.Boolean">
+            <column name="message_status" default="false"/>
+        </property>
+    </class>
+</hibernate-mapping>

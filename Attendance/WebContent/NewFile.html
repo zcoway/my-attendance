@@ -1,0 +1,518 @@
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>权限管理系统</title>
+
+
+
+<link href="/sshpermission/css/default.css" rel="stylesheet"
+	type="text/css" />
+<link href="/sshpermission/css/index.css" rel="stylesheet"
+	type="text/css" />
+<link rel="stylesheet"
+	href="/sshpermission/tg/commons/easyui/themes/default/easyui.css"
+	title="default" type="text/css" media="screen" />
+<link rel="stylesheet"
+	href="/sshpermission/tg/commons/easyui/themes/icon.css" type="text/css"
+	media="screen" />
+<link rel="stylesheet" href="/sshpermission/css/main.css"
+	type="text/css" media="screen" />
+<link rel="stylesheet"
+	href="/sshpermission/tg/commons/easyui/TreeGrid.css" type="text/css"
+	media="screen" />
+<script src="/sshpermission/tg/commons/easyui/TreeGrid.js"></script>
+<script src="/sshpermission/tg/commons/easyui/jquery-1.6.min.js"></script>
+<script src="/sshpermission/tg/commons/easyui/jquery.easyui.min.js"></script>
+<script
+	src="/sshpermission/tg/commons/easyui/locale/easyui-lang-zh_CN.js"></script>
+<script src="/sshpermission/js/json2.js"></script>
+<script src="/sshpermission/js/jquery.formid.js"></script>
+<script type="text/javascript" src="/sshpermission/js/commons.js"></script>
+<script type="text/javascript">
+	var contextPath = '/sshpermission';
+	$.parser.onComplete = function() {
+		$('body').css('visibility', 'visible');
+		setTimeout(function() {
+			$('#loading-mask').remove();
+		}, 50);
+	};
+	$(function() {
+		$(window).resize(function() {
+			$('#mainlayout').layout('resize');
+		});
+	});
+</script>
+<script type="text/javascript">
+	//----------------------------------------------用来格式化显示状态，是否打开和是否叶子
+	var status;
+	var open;
+	var leaf;
+	$
+			.getJSON(
+					"/sshpermission/permissions/resources/outDicJsonByNicknameResources.tg?nickName=status",
+					function(json) {
+						status = json;
+					});
+	$
+			.getJSON(
+					"/sshpermission/permissions/resources/outDicJsonByNicknameResources.tg?nickName=open",
+					function(json) {
+						open = json;
+					});
+	$
+			.getJSON(
+					"/sshpermission/permissions/resources/outDicJsonByNicknameResources.tg?nickName=leaf",
+					function(json) {
+						leaf = json;
+					});
+	function statusFormatter(value) {
+		for ( var i = 0; i < status.length; i++) {
+			if (status[i].value == value)
+				return status[i].name;
+		}
+		return value;
+	}
+	function openFormatter(value) {
+		for ( var i = 0; i < open.length; i++) {
+			if (open[i].value == value)
+				return open[i].name;
+		}
+		return value;
+	}
+	function leafFormatter(value) {
+		for ( var i = 0; i < leaf.length; i++) {
+			if (leaf[i].value == value)
+				return leaf[i].name;
+		}
+		return value;
+	}
+	//---------------------------------------------------------------------
+	$(function() {
+		init();
+		/* $('#dt-resources').datagrid({onDblClickRow:function dblClickRow(rowIndex,rowData){
+			//alert(rowIndex+"-"+JSON.stringify(rowData));
+			//$('#detailform').form('load',rowData);
+			//$('#detail').dialog('setTitle','更新角色信息').dialog('open');
+			$('#myform').formid('loadit',rowData);
+			$.each($('#myform input'),function(i){
+					$(this).attr("readonly","true");
+				});
+				$("#dlg-buttons a:first-child").hide();
+			$('#dlg').dialog('setTitle','查看资源信息').dialog('open');
+		}}); */
+	});
+	function init() {
+		$('#dlg').dialog({
+			onOpen : function() {
+				$('#dt-resources').datagrid('resize');
+			}
+		});
+		$('#tree').tree(
+				{
+					onClick : function(node) {
+						//$('#t-resources').datagrid('reload', {"id":node.id});
+						var queryParams = $('#dt-resources')
+								.datagrid('options').queryParams;
+						queryParams.treeId = node.id;
+
+						$('#dt-resources').datagrid('loadData', {
+							total : 0,
+							rows : []
+						});
+						$('#dt-resources').datagrid("reload");
+					}
+				});
+		$('input[id="systemId"]').combobox({
+			onSelect : function(node) {
+				loadTree();
+			}
+		});
+
+	}
+	function loadTree() {
+		var systemid = $('input[id="systemId"]').combobox("getValue");
+		$('input[id="parentId"]')
+				.combotree(
+						{
+							url : "/sshpermission/permissions/resources/getTreeResources.tg?systemId="
+									+ systemid
+						});
+		$('input[id="parentId"]').combotree('reload');
+	}
+	function advanceQuery() {
+		showQueryDialog({
+			width : 400,
+			height : 430,
+			form : '/sshpermission/views/permissions/resources/_query.jsp',
+			callback : function(data) {
+				$('#dt-resources').datagrid('loadData', {
+					total : 0,
+					rows : []
+				});
+				$('#dt-resources').datagrid('load', data);
+			}
+		});
+	}
+	function back() {
+		$('#dt-resources').datagrid('loadData', {
+			total : 0,
+			rows : []
+		});
+		$('#dt-resources').datagrid('load', {});
+	}
+	var url;
+	function newItem() {
+		url = '/sshpermission/permissions/resources/saveResources.tg';
+		$('input[id="parentId"]')
+				.combotree(
+						{
+							url : "/sshpermission/permissions/resources/getTreeResources.tg?systemId="
+						});
+		$('input[id="parentId"]').combotree('loadData', {
+			total : 0,
+			rows : []
+		});
+		$('#myform').form('clear');
+		$.each($('#myform input'), function(i) {
+			$(this).removeAttr("readonly");
+		});
+		$("#dlg-buttons a:first-child").show();
+		$('#dlg').dialog('setTitle', '新增系统资源').dialog('open');
+	}
+	function editItem() {
+		var row = $('#dt-resources').datagrid('getSelected');
+		if (row) {
+			//编辑之前加载上级资源列表
+			$('input[id="parentId"]')
+					.combotree(
+							{
+								url : "/sshpermission/permissions/resources/getTreeResources.tg?id="
+										+ row["id"]
+										+ "&systemId="
+										+ row["systemId"]
+							});
+			//设置提交的url
+			url = '/sshpermission/permissions/resources/updateResources.tg?';
+			//因为row中的.为特殊字符，需要转义才能让easyui自动赋值，该函数返回类型是字符串
+			//row = JSON.stringify(row).replace(/\./g,"\\\\.");
+			//$('#myform').form('load',eval('('+row+')'));
+			$('#myform').formid('loadit', row);
+
+			$('#dlg').dialog('setTitle', '修改系统资源').dialog('open');
+		} else {
+			$.messager.show({
+				title : '提示',
+				msg : '请先选择系统资源，再进行修改。'
+			});
+		}
+	}
+	function loadAllTrees() {
+		url = '/sshpermission/permissions/resources/getAllHTMLTreesResources.tg?';
+		$('#myform')
+				.form(
+						'submit',
+						{
+							url : url,
+							onSubmit : function() {
+								return true;
+							},
+							success : function(data) {
+								$("#allTrees").html("");
+								$("#allTrees").append($(data));
+								$("#tree").tree();
+								$('#tree')
+										.tree(
+												{
+													onClick : function(node) {
+														//$('#t-resources').datagrid('reload', {"id":node.id});
+														var queryParams = $(
+																'#dt-resources')
+																.datagrid(
+																		'options').queryParams;
+														queryParams.treeId = node.id;
+
+														$('#dt-resources')
+																.datagrid(
+																		'loadData',
+																		{
+																			total : 0,
+																			rows : []
+																		});
+														$('#dt-resources')
+																.datagrid(
+																		"reload");
+													}
+												});
+							}
+						});
+	}
+	function removeItem() {
+		var row = $('#dt-resources').datagrid('getSelected');
+		if (row) {
+			$.messager
+					.confirm(
+							'确认',
+							'确定要删除该记录?',
+							function(result) {
+								if (result) {
+									url = '/sshpermission/permissions/resources/deleteResources.tg?id='
+											+ row["id"];
+									$('#myform')
+											.form(
+													'submit',
+													{
+														url : url,
+														onSubmit : function() {
+															return true;
+														},
+														success : function(data) {
+															$('#dt-resources')
+																	.datagrid(
+																			'reload');
+															$("#tree").tree(
+																	'reload');
+															data = eval('('
+																	+ data
+																	+ ')');
+															if (data.success) {
+																$.messager
+																		.show({
+																			title : '提示',
+																			msg : '操作成功！',
+																			showType : 'slide'
+																		});
+																loadAllTrees();
+															}
+															if (data.error) {
+																$.messager
+																		.alert(
+																				'提示',
+																				'操作失败！',
+																				'error');
+															}
+														}
+													});
+								}
+							});
+		} else {
+			$.messager.show({
+				title : '提示',
+				msg : '请先选择资源记录，再进行修改。'
+			});
+		}
+	}
+
+	function saveItem() {
+		var data = $('#myform').form('submit', {
+			url : url,
+			onSubmit : function() {
+				return $(this).form('validate');
+			},
+			success : function(data) {
+				$('#dlg').dialog('close');
+				$('#dt-resources').datagrid('reload');
+				$("#tree").tree('reload');
+				data = eval('(' + data + ')');
+				if (data.success) {
+					$.messager.show({
+						title : '提示',
+						msg : '操作成功！',
+						showType : 'slide'
+					});
+					loadAllTrees();
+				}
+				if (data.error) {
+					$.messager.alert('提示', '操作失败！', 'error');
+				}
+			}
+		});
+
+	}
+</script>
+
+</head>
+<body
+	style="margin: 0; padding: 0; height: 100%; overflow: hidden; background: #F2FBFF">
+	<div id="mainlayout" class="easyui-layout" fit="true">
+		<div region="north" border="false">
+			<div class="toolbar">
+				<table cellpadding="0" cellspacing="0"
+					style="width: 95%; height: 50px;" fit="true">
+					<tr>
+						<td><a href="javascript:newItem()" class="easyui-linkbutton"
+							iconCls="icon-add" plain="true">新增</a> <a
+							href="javascript:editItem()" class="easyui-linkbutton"
+							iconCls="icon-edit" plain="true">修改</a> <a
+							href="javascript:removeItem()" class="easyui-linkbutton"
+							iconCls="icon-cancel" plain="true">删除</a> <a
+							href="javascript:back()" class="easyui-linkbutton"
+							iconCls="icon-reload" plain="true">刷新</a></td>
+						<td style="text-align: right"><a
+							href="javascript:advanceQuery()" class="easyui-linkbutton"
+							plain="true">高级查询</a></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div region="west" border="false"
+			style="border-right: 1px solid #92B7D0; width: 150px; padding: 5px;">
+
+			<div id="allTrees">
+				<ul id="tree" class="easyui-tree" animate="false">
+					<li state="opened" id="TREES"><span>资源系统</span>
+					<ul id="tree22" class="easyui-tree" animate="false">
+							<li state="closed" id="SYSTEM22"><span>测试系统</span>
+								<ul>
+									<li id="RESOURCE5" state="closed"><span>系统中心</span>
+										<ul>
+											<li id="RESOURCE21"><span>资源信息</span></li>
+											<li id="RESOURCE11"><span>角色管理</span></li>
+											<li id="RESOURCE10"><span>组管理</span></li>
+											<li id="RESOURCE18"><span>系统字典</span></li>
+											<li id="RESOURCE22"><span>系统信息</span></li>
+											<li id="RESOURCE24"><span>流程定义类型</span></li>
+											<li id="RESOURCE17"><span>日志管理</span></li>
+											<li id="RESOURCE20"><span>操作信息</span></li>
+											<li id="RESOURCE19"><span>全局参数</span></li>
+											<li id="RESOURCE8"><span>人员管理</span></li>
+										</ul>
+									<li id="RESOURCE23"><span>ddd</span></li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div region="center" border="false">
+			<table id="dt-resources" class="easyui-datagrid"
+				url="/sshpermission/permissions/resources/getItemsResources.tg"
+				fit="true" border="false" pagination="true" singleSelect="true"
+				rownumbers="true" disabled="true">
+				<thead>
+					<tr>
+						<th field="name" width="100" sortable="true">资源名称</th>
+						<th field="enname" width="100" sortable="true">英文名称</th>
+						<th field="parentName" width="100">上级资源</th>
+						<th field="systemName" width="100" sortable="true">系统名称</th>
+						<th field="resourcetype" width="100" sortable="true">资源类型</th>
+						<th field="link" width="100" sortable="true">链接</th>
+						<th field="icon" width="100" sortable="true">图标</th>
+						<th field="iconopen" width="70" sortable="true"
+							formatter="openFormatter">打开图标</th>
+						<th field="isopen" width="70" sortable="true"
+							formatter="openFormatter">是否打开</th>
+						<th field="isleaf" width="70" sortable="true"
+							formatter="leafFormatter">是否节点</th>
+						<th field="status" width="50" sortable="true"
+							formatter="statusFormatter">状态</th>
+						<th field="orderid" width="50" sortable="true">排序</th>
+						<th field="memo" width="250">备注</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+		<div id="dlg" class="easyui-dialog"
+			style="width: 350px; height: 430px;" closed="true" modal="true"
+			buttons="#dlg-buttons">
+			<form id="myform" method="post">
+
+
+
+				<div style="padding: 20px">
+					<table cellpadding="0" cellspacing="0" class="form-table">
+						<tr>
+							<td>资源名称：</td>
+							<td><input id="name" name="resource.name"
+								class="easyui-validatebox" style="width: 200px" required="true"></input>
+								<input id="id" name="resource.id" type="hidden"></input></td>
+						</tr>
+						<tr>
+							<td>英文名称：</td>
+							<td><input id="enname" name="resource.enname"
+								class="easyui-validatebox" style="width: 200px" required="true"></input></td>
+						</tr>
+						<tr>
+							<td>所属系统：</td>
+							<td><input id="systemId" name="resource.systemId"
+								class="easyui-combobox" style="width: 200px"
+								url="/sshpermission/permissions/resources/getSystemsResources.tg"
+								valueField="id" textField="name" required="true"></input></td>
+						</tr>
+						<tr>
+							<td>上级资源：</td>
+							<td><input id="parentId" name="resource.parentId"
+								type="text" class="easyui-combotree" style="width: 200px;"
+								required="true"></td>
+						</tr>
+						<tr>
+							<td>资源类型：</td>
+							<td><input id="resourcetype" name="resource.resourcetype"
+								class="easyui-validatebox" style="width: 200px"></input></td>
+						</tr>
+						<tr>
+							<td>链接：</td>
+							<td><input id="link" name="resource.link"
+								class="easyui-validatebox" style="width: 200px"></input></td>
+						</tr>
+						<tr>
+							<td>图标：</td>
+							<td><input id="icon" name="resource.icon"
+								class="easyui-validatebox" style="width: 200px"></input></td>
+						</tr>
+						<tr>
+							<td>打开图标：</td>
+							<td><input id="iconopen" class="easyui-combobox"
+								name="resource.iconopen" style="width: 200px" panelHeight="60"
+								required="true" readonly="true"
+								url="/sshpermission/permissions/resources/outDicJsonByNicknameResources.tg?nickName=open"
+								valueField="value" textField="name"></input></td>
+						</tr>
+						<tr>
+							<td>是否节点：</td>
+							<td><input id="isleaf" class="easyui-combobox"
+								name="resource.isleaf" style="width: 200px" panelHeight="60"
+								required="true" readonly="true"
+								url="/sshpermission/permissions/resources/outDicJsonByNicknameResources.tg?nickName=leaf"
+								valueField="value" textField="name"></input></td>
+						</tr>
+						<tr>
+							<td>是否打开：</td>
+							<td><input id="isopen" class="easyui-combobox"
+								name="resource.isopen" style="width: 200px" panelHeight="60"
+								required="true" readonly="true"
+								url="/sshpermission/permissions/resources/outDicJsonByNicknameResources.tg?nickName=open"
+								valueField="value" textField="name"></input></td>
+						</tr>
+						<tr>
+							<td>状态：</td>
+							<td><input id="status" class="easyui-combobox"
+								name="resource.status" style="width: 200px" panelHeight="60"
+								required="true" readonly="true"
+								url="/sshpermission/permissions/resources/outDicJsonByNicknameResources.tg?nickName=status"
+								valueField="value" textField="name"></input></td>
+						</tr>
+						<tr>
+							<td>排序：</td>
+							<td><input id="orderid" name="resource.orderid"
+								class="easyui-validatebox" style="width: 200px"></input></td>
+						</tr>
+						<tr>
+							<td>备注：</td>
+							<td><textarea id="memo" name="resource.memo" class="e-input"
+									style="height: 40px; width: 200px"></textarea></td>
+						</tr>
+
+					</table>
+				</div>
+			</form>
+			<div id="dlg-buttons" style="text-align: center">
+				<a href="#" class="easyui-linkbutton" iconCls="icon-save"
+					onclick="saveItem()">保存</a> <a href="#" class="easyui-linkbutton"
+					iconCls="icon-cancel"
+					onclick="javascript:$('#dlg').dialog('close')">关闭</a>
+			</div>
+		</div>
+	</div>
+</body>
